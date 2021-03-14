@@ -76,7 +76,7 @@ function discretize_from(wave, duration, elapsed_duration, sample_length, data) 
  * -1 and 1. The duration is given in seconds.
  * @param {function} wave - given wave function
  * @param {Number} duration - in seconds
- * @returns {Sound} 
+ * @returns {Sound}
  */
 function make_sound(wave, duration) {
     return pair(t => t >= duration ? 0 : wave(t), duration);
@@ -138,9 +138,9 @@ function play_unsafe(sound) {
         // Declaring duration and wave variables
         let wave = get_wave(sound);
         let duration = get_duration(sound);
-        
+
         _playing = true;
-      
+
         // Instantiate audio context if it has not been instantiated
         if (!_audioplayer) {
             init_audioCtx();
@@ -163,7 +163,7 @@ function play_unsafe(sound) {
         // Schedules playback of sounds
         function ping_pong(current_sound, next_sound, current_buffer, next_buffer) {
             // If sound has exceeded duration, early return to stop calls.
-            if (elapsed_duration > duration || !_playing) { 
+            if (elapsed_duration > duration || !_playing) {
                 current_sound.disconnect(_audioplayer.destination);
                 _playing = false;
                 return;
@@ -215,7 +215,7 @@ function play_unsafe(sound) {
             elapsed_duration += buffer_length;
 
             current_sound.onended =
-            () => 
+            () =>
                 ping_pong(next_sound, current_sound, next_buffer, current_buffer);
         }
         let start_time = _audioplayer.currentTime;
@@ -255,7 +255,7 @@ function play(sound) {
         // Discretize the function and clip amplitude
         let temp;
         let prev_value = 0;
-        
+
         const wave = get_wave(sound);
         for (let i = 0; i < channel.length; i++) {
             temp = wave(i/FS);
@@ -273,7 +273,7 @@ function play(sound) {
         // Connect data to output destination
         let source = _audioplayer.createBufferSource();
         source.buffer = theBuffer;
-        
+
         source.connect(_audioplayer.destination);
         _playing = true;
         source.start();
@@ -328,7 +328,7 @@ function play_concurrently(sound) {
         // Connect data to output destination
         let source = _audioplayer.createBufferSource();
         source.buffer = theBuffer;
-        
+
         source.connect(_audioplayer.destination);
         _playing = true;
         source.start();
@@ -336,7 +336,7 @@ function play_concurrently(sound) {
             source.disconnect(_audioplayer.destination);
             _playing = false;
         }
-        
+
     }
 
 }
@@ -356,11 +356,11 @@ function stop() {
  * makes a new sound by combining the sounds in a given
  * list so that
  * they are arranged consecutively. Let us say the durations
- * of the sounds are <CODE>d1</CODE>, ..., <CODE>dn</CODE> and the wave 
+ * of the sounds are <CODE>d1</CODE>, ..., <CODE>dn</CODE> and the wave
  * functions are <CODE>w1</CODE>, ..., <CODE>wn</CODE>. Then the resulting
  * sound has the duration of the sum of <CODE>d1</CODE>, ..., <CODE>dn</CODE>.
  * The wave function <CODE>w</CODE> of the resulting sound uses <CODE>w1</CODE> for the first
- * <CODE>d1</CODE> seconds, <CODE>w2</CODE> for the next 
+ * <CODE>d1</CODE> seconds, <CODE>w2</CODE> for the next
  * <CODE>d2</CODE> seconds etc. We specify that <CODE>w(d1) = w2(0)</CODE>,
  * <CODE>w(d1+d2) = w3(0)</CODE>, etc
  * @param {list_of_sounds} sounds - given list of sounds
@@ -382,7 +382,7 @@ function consecutively(list_of_sounds) {
 /**
  * makes a new sound by combining the sounds in a given
  * list so that
- * they play simutaneously, all starting at the beginning of the 
+ * they play simutaneously, all starting at the beginning of the
  * resulting sound
  * @param {list_of_sounds} sounds - given list of sounds
  * @returns {Sound} resulting sound
@@ -453,7 +453,7 @@ function square_sound(freq, duration) {
         }
         return answer;
     }
-    return make_sound(t => 
+    return make_sound(t =>
         (4 / Math.PI) * fourier_expansion_square(t),
         duration);
 }
@@ -476,7 +476,7 @@ function triangle_sound(freq, duration) {
         }
         return answer;
     }
-    return make_sound(t => 
+    return make_sound(t =>
         (8 / Math.PI / Math.PI) * fourier_expansion_triangle(t),
         duration);
 }
@@ -541,7 +541,7 @@ function letter_name_to_midi_note(note) {
         default:
             break;
     }
-  
+
     if (note.length === 2) {
         res = parseInt(note[1]) * 12 + res;
     } else if (note.length === 3) {
@@ -549,17 +549,17 @@ function letter_name_to_midi_note(note) {
             case '#':
                 res = res + 1;
                 break;
-  
+
             case 'b':
                 res = res - 1;
                 break;
-  
+
             default:
                 break;
         }
     res = parseInt(note[2]) * 12 + res;
     }
-  
+
     return res;
   }
 
@@ -596,14 +596,14 @@ function linear_decay(decay_period) {
         }
     }
 }
-  
+
 /**
  * Returns an envelope: a function from Sound to Sound.
  * When the envelope is applied to a Sound, it returns
  * a new Sound that results from applying ADSR to
  * the given Sound. The Attack, Sustain and
  * Release ratios are given in the first, second and fourth
- * arguments, and the Sustain level is given in 
+ * arguments, and the Sustain level is given in
  * the third argument as a fraction between 0 and 1.
  * @param {Number} attack_ratio - proportion of Sound in attack phase
  * @param {Number} decay_ratio - proportion of Sound decay phase
@@ -613,22 +613,22 @@ function linear_decay(decay_period) {
  */
 function adsr(attack_ratio, decay_ratio, sustain_level, release_ratio) {
     return sound => {
-        let wave = get_wave(sound);
-        let duration = get_duration(sound);
-        let attack_time = duration * attack_ratio;
-        let decay_time = duration * decay_ratio;
-        let release_time = duration * release_ratio;
+        const wave = get_wave(sound);
+        const duration = get_duration(sound);
+        const attack_time = duration * attack_ratio;
+        const decay_time = duration * decay_ratio;
+        const release_time = duration * release_ratio;
         return make_sound( x => {
             if (x < attack_time) {
                 return wave(x) * (x / attack_time);
             } else if (x < attack_time + decay_time) {
-                return ((1 - sustain_level) * 
+                return ((1 - sustain_level) *
                         (linear_decay(decay_time))(x - attack_time) + sustain_level) *
                          wave(x);
             } else if (x < duration - release_time) {
                 return wave(x) * sustain_level;
             } else if (x <= duration) {
-                return wave(x) * sustain_level * 
+                return wave(x) * sustain_level *
                         (linear_decay(release_time))(x - (duration - release_time));
             } else {
                 return 0;
@@ -636,7 +636,7 @@ function adsr(attack_ratio, decay_ratio, sustain_level, release_ratio) {
         }, duration);
     };
   }
-  
+
 // waveform is a function that accepts freq, dur and returns Sound
 /**
  * Returns a Sound that results from applying a list of envelopes
@@ -660,7 +660,7 @@ function stacking_adsr(waveform, base_frequency, duration, envelopes) {
         return pair(pair(n, head(lst)), zip(tail(lst), n + 1));
       }
     }
-  
+
     return simultaneously(accumulate(
         (x, y) => pair((tail(x))
                (waveform(base_frequency * head(x), duration))
@@ -668,7 +668,7 @@ function stacking_adsr(waveform, base_frequency, duration, envelopes) {
         , null
         , zip(envelopes, 1)));
 }
-  
+
 // instruments for students
 
 /**
@@ -760,7 +760,7 @@ function sound_to_string(sound) {
 
 function string_to_sound(str) {
     var discretized_sound = eval(str);
-    
+
     return pair(t => ..., duration(data));
 }
 */
